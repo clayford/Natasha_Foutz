@@ -113,7 +113,9 @@ library(ggplot2)
 # linear regression -------------------------------------------------------
 
 # get data
-ps <- read.csv("patient_satisfaction.csv")
+ps <- read.csv("https://raw.githubusercontent.com/clayford/Natasha_Foutz/master/patient_satisfaction.csv")
+
+# Source: Applied Linear Statistical Models, 5th Edition (page 250)
 
 # ps = patient satisfaction score (dependent variable)
 # age = age of patient
@@ -181,13 +183,14 @@ summary(mod1)
 # function to create an object that contains the samples.
 mod1_df <- as.data.frame(mod1)
 summary(mod1_df)
+dim(mod1_df)
 
 # We can work with this object to answer questions such as...
 
 # what is the probability the effect of anxiety is greater than 0
 mean(mod1_df$anxiety > 0)
 
-# what is the probability the effect of age is between -0.1 and -0.5
+# what is the probability the effect of age is between -1.0 and -0.5
 mean(mod1_df$age > -1.0 & mod1_df$age < -0.5)
 
 # what is the probability the effect of illness is less than 0
@@ -229,7 +232,7 @@ posterior_interval(mod1) # compare to mod1 that used default priors
 summary(mod2)
 pp_check(mod2)
 
-# Not much difference in the results.
+
 
 # fit a model with interactions
 # perhaps we hypothesize the effect of anxiety depends on age
@@ -286,9 +289,12 @@ quantile(pp, probs = c(0.025, 0.975))
 # logistic regression -----------------------------------------------------
 
 # get data
-ipo <- read.csv("ipo.csv")
+ipo <- read.csv("https://raw.githubusercontent.com/clayford/Natasha_Foutz/master/ipo.csv")
 
-# vcf = presence or absence of venture capital funding (dependent variable)
+# Source: Applied Linear Statistical Models, 5th Edition (page 1355)
+
+# id = company identification
+# vcf = presence/absence of venture capital funding (dependent variable)
 # cmpy_value = est face value of company from prospectus
 # shares = num shares offered
 # buyout = presence/absence of leveraged buyout
@@ -298,12 +304,15 @@ names(ipo)
 str(ipo)
 summary(ipo)
 
-table(ipo$vcf)
-table(ipo$buyout)
+# relationship of buyout with vcf?
+table(ipo$vcf, ipo$buyout)
+prop.table(table(ipo$vcf, ipo$buyout), margin = 2)
 
-
+# visualize dist'n of numeric variables by vcf
 boxplot(cmpy_value ~ vcf, data = ipo)
 boxplot(shares ~ vcf, data = ipo)
+
+# plot of shares by cmpy_value
 plot(shares ~ cmpy_value, data = ipo)
 
 # dist'n of numeric predictors are quite skewed
@@ -322,8 +331,10 @@ ipo$shares_log <- log10(ipo$shares)
 ipo$vcf <- factor(ipo$vcf, labels = c("no", "yes"))
 ipo$buyout <- factor(ipo$buyout, labels = c("no", "yes"))
 
+summary(ipo)
+
 # fit a simple additive model with default priors;
-# "family = binomial" because our dependent variable is binary
+# "family = binomial" because our dependent variable is binary;
 # model probability of venture capital funding
 mod4 <- stan_glm(vcf ~ cmpy_value_log + shares_log + buyout, 
                  data = ipo, 
@@ -376,4 +387,46 @@ posterior_interval(mod4) # compare to first model
 
 
 
+# fit model without buyout and with default priors
+mod6 <- stan_glm(vcf ~ cmpy_value_log + shares_log, 
+                 data = ipo, 
+                 family = binomial)
 
+# evaluate model
+prior_summary(mod6)
+plot(mod6, plotfun = "trace")
+plot(mod6, plotfun = "dens")
+pp_check(mod6)
+summary(mod6)
+posterior_interval(mod6)
+
+# compare to model with buyout
+waic(mod4)
+waic(mod6)
+compare_models(waic(mod4), waic(mod6))
+
+# appears model without buyout is just as good as model with buyout
+
+
+# fit model with interaction and with default priors;
+# cmpy_value_log * shares_log = cmpy_value_log + shares_log + cmpy_value_log:shares_log
+# this may take a while!
+mod7 <- stan_glm(vcf ~ cmpy_value_log * shares_log, 
+                 data = ipo, 
+                 family = binomial)
+
+pp_check(mod7)
+summary(mod7)
+posterior_interval(mod7)
+compare_models(waic(mod6), waic(mod7))
+
+# looks like the model with interaction is warranted.
+
+# Visualize the model
+plot(ggpredict(mod7, terms= c("shares_log [all]","cmpy_value_log [6,7,8]"))) 
+
+# make the plot prettier; convert x axis back to original scale
+# need to load ggplot2 package
+plot(ggpredict(mod7, terms= c("shares_log [all]","cmpy_value_log [6,7,8]"))) +
+  scale_x_continuous("Shares", breaks = seq(5.5,7.0,0.5), 
+                     labels = scales::dollar(10^seq(5.5,7.0,0.5)))
