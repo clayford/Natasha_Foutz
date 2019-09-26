@@ -28,6 +28,6 @@ Getting started with the rstanarm package. A guest lecture for Natasha Foutz, As
 
 1. go to <a href="https://www.rstudio.com/products/rstudio/download/#download" target="_blank">https://www.rstudio.com/products/rstudio/download/#download</a> 
 2. Under “Installers for Supported Platforms” click the appropriate installer for your operating system:
-    * Windows: _RStudio 1.2.5001 - Windows 10/8/7 (64-bit)_
-    * Mac: _RStudio 1.2.5001 - macOS 10.12+ (64-bit)_
+    - Windows: _RStudio 1.2.5001 - Windows 10/8/7 (64-bit)_
+    - Mac: _RStudio 1.2.5001 - macOS 10.12+ (64-bit)_
 3. When the file finishes downloading, double-click to install. You should be able to just click “Next” to all dialogs to finish the installation.
