@@ -6,7 +6,7 @@ Getting started with the rstanarm package. A guest lecture for Natasha Foutz, As
 * Download and install R and RStudio (see below for instructions)
 * Open RStudio (and only RStudio)
 * Install the following packages: rstanarm, ggeffects, ggplot2
-    * Tools...Install Pakages...
+    * Tools...Install Packages...
     * Enter packages separated by comma or space
     * Click Install (leave the "Install dependencies" checkbox checked)
 * <a href="https://raw.githubusercontent.com/clayford/Natasha_Foutz/master/bayesian_modeling.R" download>Download the R script</a> for the lecture (May want to right-click and Save File As...)
