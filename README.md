@@ -9,7 +9,7 @@ Getting started with the rstanarm package. A guest lecture for Natasha Foutz, As
     * Tools...Install Pakages...
     * Enter packages separated by comma or space
     * Click Install (leave the "Install dependencies" checkbox checked)
-* <a href="https://raw.githubusercontent.com/clayford/Natasha_Foutz/master/bayesian_modeling.R" download>Download the R script</a> for the lecture
+* <a href="https://raw.githubusercontent.com/clayford/Natasha_Foutz/master/bayesian_modeling.R" download>Download the R script</a> for the lecture (May want to right-click and Save File As...)
 * Open the R script in RStudio: File...Open File...
 
 ### To download and install R
