@@ -3,107 +3,40 @@
 # UVa Library StatLab
 
 
-# R scripts and comments --------------------------------------------------
 
-# This is an R script. It contains R code. It is a text file than can be viewed
-# and edited in any text editor. 
+# Quick R/Rstudio tutorial ------------------------------------------------
 
-# To start a new R script in RStudio: File...New File...R script
-# When you save an R script in Rstudio, it will end with '.R'
+# To submit R code from an R script, put your cursor on the line with the code
+# and hit Ctrl + Enter (Win) or Cmd + Enter (Mac). Try it on the next line:
+version
 
-# Everything preceded with a hashtag is a comment. Comments are ignored by R but
-# can be useful to you. They are typically used to explain the what and why of
-# the R code.
+# The following lines of R code create a vector of numbers called "x" and finds
+# the mean. 
 
+# - The c() function combines things of the same type (number, string) into a
+#   vector.
+# - The assignment operator ' <- ' can be quickly entered with Alt + - (Win) or
+#   Option + - (Mac). It assigns a value to a name.
+# - The mean() function returns the mean, or average.
 
-# functions and assignment ------------------------------------------------
-
-# R uses functions to do stuff. For example, the c() function combine values
-# into a vector (like a column of numbers in a spreadsheet). Separate values
-# with commas:
-
-# Put your cursor on the following line and click Ctrl + Enter (Windows) or 
-# Cmd + Enter (Mac) to submit or "run" the code
-c(1, 3, 56, 7, 12)
-
-# The c() function combined the values into a single object. In R we often want
-# to save objects. We do that with the assignment operator: <-
-# For example, save our vector as "x". Run this line of code:
-x <- c(1, 3, 56, 7, 12)
-
-# We see the "x" object in our Environment. If we enter "x" in the console, or
-# run "x" from the script, we see our vector of numbers.
-x
-
-
-# Basic functions and data frames -----------------------------------------
-
-# We can work with "x" using other R functions, such as mean(), median() or
-# length()
+x <- c(88, 92, 99, 77, 84, 81, 76, 64, 81, 81, 92, 79, 90, 90, 100)
 mean(x)
+
+# The mean is output to the R Console. 
+# x is saved in our Global Environment, or memory.
+
+# Examples of other functions
 median(x)
+sd(x)
 length(x)
 
-# A vector is a one-dimensional data structure. Vectors can only have one type
-# of data, such as numeric or text.
-
-# We often need data structures that contain multiple types of data. In R we
-# call these "data frames". These are two-dimensional data structures. Think of
-# them as a collection of vectors stacked column-wise next to one another.
-
-# Create three vectors containing 5 elements
-gender <- c("m", "m", "f", "m", "f")
-age <- c(19, 25, 22, 20, 22)
-score <- c(5, 4, 5, 5, 7)
-
-# Combine into a data frame called "DF" using the data.frame function:
-DF <- data.frame(gender, age, score)
-DF
-
-# We can extract columns from a data frame using the dollar sign, like so:
-DF$age
-mean(DF$age)
-median(DF$age)
-
-# We don't usually build data frames from scratch in R when it comes to data
-# analysis. Instead we import data. We can import Excel spreadsheets, CSV files,
-# and many others. Today we will import CSV files. Most import functions begin
-# with the word "read", such as read.csv() or read_excel(). 
-
-# Saving and restoring R objects ------------------------------------------
-
-# If we close RStudio, DF and x will be deleted from memory. If we want to save
-# them, we can either save a collection of objects, or save individual objects.
-
-# save a collection of objects; use extension .Rdata or .Rda
-save(x, DF, file = "workspace.Rdata")
-
-# save an individual object; use extension .Rds
-saveRDS(DF, "DF.Rds")
-
-# remove objects using rm()
-rm(x, DF)
-
-# restore multiple objects using .Rdata file
-load("workspace.Rdata")
-
-# restore individual object using .Rds
-my_dataframe <- readRDS("DF.Rds")
-
-# This can be very handy after running a Bayesian model that takes a long time
-# to complete.
-
-# Let's tidy up
-rm(x, DF, my_dataframe)
-
-
 # load packages -----------------------------------------------------------
-
-# R packages contain functions. 
 
 # rstanarm: functions for doing Bayesian modeling
 # ggeffects: functions for visualizing models
 # ggplot2: functions for creating plots
+
+install.packages(c("rstanarm", "ggeffects", "ggplot2"))
 
 library(rstanarm)
 library(ggeffects)
@@ -430,3 +363,104 @@ plot(ggpredict(mod7, terms= c("shares_log [all]","cmpy_value_log [6,7,8]")))
 plot(ggpredict(mod7, terms= c("shares_log [all]","cmpy_value_log [6,7,8]"))) +
   scale_x_continuous("Shares", breaks = seq(5.5,7.0,0.5), 
                      labels = scales::dollar(10^seq(5.5,7.0,0.5)))
+
+
+
+
+# Appendix: R scripts and comments ----------------------------------------
+
+# This is an R script. It contains R code. It is a text file than can be viewed
+# and edited in any text editor. 
+
+# To start a new R script in RStudio: File...New File...R script
+# When you save an R script in Rstudio, it will end with '.R'
+
+# Everything preceded with a hashtag is a comment. Comments are ignored by R but
+# can be useful to you. They are typically used to explain the what and why of
+# the R code.
+
+
+
+# Appendix: functions and assignment --------------------------------------
+
+
+# R uses functions to do stuff. For example, the c() function combine values
+# into a vector (like a column of numbers in a spreadsheet). Separate values
+# with commas:
+
+# Put your cursor on the following line and click Ctrl + Enter (Windows) or 
+# Cmd + Enter (Mac) to submit or "run" the code
+c(1, 3, 56, 7, 12)
+
+# The c() function combined the values into a single object. In R we often want
+# to save objects. We do that with the assignment operator: <-
+# For example, save our vector as "x". Run this line of code:
+x <- c(1, 3, 56, 7, 12)
+
+# We see the "x" object in our Environment. If we enter "x" in the console, or
+# run "x" from the script, we see our vector of numbers.
+x
+
+
+# Appendix: basic functions and data frames -------------------------------
+
+# We can work with "x" using other R functions, such as mean(), median() or
+# length()
+mean(x)
+median(x)
+length(x)
+
+# A vector is a one-dimensional data structure. Vectors can only have one type
+# of data, such as numeric or text.
+
+# We often need data structures that contain multiple types of data. In R we
+# call these "data frames". These are two-dimensional data structures. Think of
+# them as a collection of vectors stacked column-wise next to one another.
+
+# Create three vectors containing 5 elements
+gender <- c("m", "m", "f", "m", "f")
+age <- c(19, 25, 22, 20, 22)
+score <- c(5, 4, 5, 5, 7)
+
+# Combine into a data frame called "DF" using the data.frame function:
+DF <- data.frame(gender, age, score)
+DF
+
+# We can extract columns from a data frame using the dollar sign, like so:
+DF$age
+mean(DF$age)
+median(DF$age)
+
+# We don't usually build data frames from scratch in R when it comes to data
+# analysis. Instead we import data. We can import Excel spreadsheets, CSV files,
+# and many others. Today we will import CSV files. Most import functions begin
+# with the word "read", such as read.csv() or read_excel(). 
+
+
+# Appendix: saving and restoring R objects --------------------------------
+
+
+# If we close RStudio, DF and x will be deleted from memory. If we want to save
+# them, we can either save a collection of objects, or save individual objects.
+
+# save a collection of objects; use extension .Rdata or .Rda
+save(x, DF, file = "workspace.Rdata")
+
+# save an individual object; use extension .Rds
+saveRDS(DF, "DF.Rds")
+
+# remove objects using rm()
+rm(x, DF)
+
+# restore multiple objects using .Rdata file
+load("workspace.Rdata")
+
+# restore individual object using .Rds
+my_dataframe <- readRDS("DF.Rds")
+
+# This can be very handy after running a Bayesian model that takes a long time
+# to complete.
+
+# Let's tidy up
+rm(x, DF, my_dataframe)
+
