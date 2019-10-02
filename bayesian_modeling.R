@@ -8,7 +8,8 @@
 
 # To submit R code from an R script, put your cursor on the line with the code
 # and hit Ctrl + Enter (Win) or Cmd + Enter (Mac). Try it on the next line:
-version
+
+22/7
 
 # The following lines of R code create a vector of numbers called "x" and finds
 # the mean. 
@@ -28,7 +29,14 @@ mean(x)
 # Examples of other functions
 median(x)
 sd(x)
-length(x)
+n <- length(x)
+
+# 3 main takeaways
+
+# - R uses functions
+# - you can assign (or save) results of functions using the '<-' operator
+# - Submit R code from script using Ctrl + Enter (Win) or Cmd + Enter (Mac)
+
 
 # load packages -----------------------------------------------------------
 
@@ -36,7 +44,14 @@ length(x)
 # ggeffects: functions for visualizing models
 # ggplot2: functions for creating plots
 
+# If you do not have these packages, run the following code:
+
 install.packages(c("rstanarm", "ggeffects", "ggplot2"))
+
+# It may take a while
+
+# Now load the packages. Only need to install packages once; need to load each
+# new R session.
 
 library(rstanarm)
 library(ggeffects)
@@ -75,6 +90,36 @@ mod1 <- stan_glm(ps ~ age + illness + anxiety,
 # sophisticated sampling engine. If something goes wrong with the sampling, you
 # should get a warning message in red saying not to trust the results.
 
+# model summary; summary statistics of the posterior distributions;
+# your summary may differ from mine it's based on sampling!
+# We want all Rhat < 1.1 (assessment of convergence)
+# We want all n_eff > 1000 (n_eff = effective sample size)
+
+summary(mod1)
+
+# Some interpretation of the "means" of the posterior dist'ns:
+
+# - for every one year increase in age, expected patient satisfaction decreases
+#   by about 1
+
+# - it's not clear what effect illness has on patient satisfaction since its
+#   distributions overlaps with 0
+
+# - It appears anxiety has a negative effect on patient satisfaction as but
+#   there is considerable uncertainty.
+
+# - the intercept is the expected patient satisfaction for someone age 0, with
+#   illness = 0 and anxiety = 0. Not useful.
+
+# - sigma is the estimate of the standard deviation of the normal (gaussian)
+#   distribution from which we assume the errors are "drawn".
+
+# visualize posterior distributions. This is the objective of Basyesian modeling.
+plot(mod1, plotfun = "dens")
+
+# 90% credibility intervals of coefficients
+posterior_interval(mod1)
+
 # which priors were used? Notice the scale is adjusted to accomodate the range
 # of the data. These are "weakly informative". They rule out extreme values,
 # which helps with the sampling.
@@ -83,34 +128,6 @@ prior_summary(mod1)
 # check convergence. Did the sampling "settle down" around a specific region.
 # These plots look good.
 plot(mod1, plotfun = "trace")
-
-# visualize posterior distributions. This is the objective of Basyesian modeling.
-plot(mod1, plotfun = "dens")
-
-# credibility intervals of coefficients
-posterior_interval(mod1)
-
-# model summary; summary statistics of the posterior distributions;
-# We want all Rhat < 1.1 (assessment of convergence)
-# We want all n_eff > 1000 (n_eff = effective sample size)
-summary(mod1)
-
-# Some interpretation:
-
-# - for every one year increase in age, expected patient satisfaction decreases
-#   by about 1.1
-
-# - for every one unit increase in the anxiety score, expected patient
-#   satisfaction decreases by about 13.2
-
-# - it's not clear what effect illness has on patient satisfaction
-
-# - the intercept is the expected patient satisfaction for someone age 0, with
-#   illness = 0 and anxiety = 0. Not useful.
-
-# - sigma is the estimate of the standard deviation of the normal (gaussian)
-#   distribution from which we assume the errors are "drawn".
-
 
 # The model summary is summarizing 4000 samples; use the as.data.frame()
 # function to create an object that contains the samples.
@@ -121,7 +138,7 @@ dim(mod1_df)
 # We can work with this object to answer questions such as...
 
 # what is the probability the effect of anxiety is greater than 0
-mean(mod1_df$anxiety > 0)
+mean(mod1_df$anxiety < 0)
 
 # what is the probability the effect of age is between -1.0 and -0.5
 mean(mod1_df$age > -1.0 & mod1_df$age < -0.5)
@@ -142,7 +159,7 @@ pp_check(mod1)
 # ppd = posterior predictive distribution 
 plot(ggpredict(mod1, ppd = FALSE)) # default
 
-# predicted patient satisfaction for a give patient
+# predicted patient satisfaction for a given patient
 # notice the larger uncertainty intervals
 plot(ggpredict(mod1, ppd = TRUE))
 
@@ -154,16 +171,16 @@ mod2 <- stan_glm(ps ~ age + illness + anxiety,
                  family = gaussian,
                  prior_intercept = normal(location = 100, scale = 50, autoscale = F), 
                  prior = normal(location = c(0, 10, 10), scale = c(5, 10, 10), autoscale = F), 
-                 prior_aux = NULL) # flat, uniform prior
+                 prior_aux = exponential(rate = 1)) # default
 
 # evaluate model
-prior_summary(mod2)
-plot(mod2, plotfun = "trace")
+summary(mod2)
 plot(mod2, plotfun = "dens")
 posterior_interval(mod2)
 posterior_interval(mod1) # compare to mod1 that used default priors
-summary(mod2)
+plot(mod2, plotfun = "trace")
 pp_check(mod2)
+pp_check(mod1) # compare to mod 1
 
 
 
@@ -174,14 +191,14 @@ mod3 <- stan_glm(ps ~ age + illness + anxiety + anxiety:age,
                  data = ps, 
                  family = gaussian)
 
-# check convergence
-plot(mod3, plotfun = "trace")
+# model summary
+summary(mod3)
 
 # visualize posterior distributions
 plot(mod3, plotfun = "dens")
 
-# model summary
-summary(mod3)
+# check convergence
+plot(mod3, plotfun = "trace")
 
 # assess model fit with posterior predictive check
 pp_check(mod3)
@@ -212,10 +229,21 @@ pp <- posterior_predict(mod1, newdata = data.frame(age = 35,
                                                    illness = 50, 
                                                    anxiety = 2), 
                         draws = 1000)
+head(pp)
 dim(pp)
 mean(pp)
 summary(pp)
 quantile(pp, probs = c(0.025, 0.975))
+
+
+
+# YOUR TURN #1 ------------------------------------------------------------
+
+# Model patient satisfaction (ps) as a function of just age and anxiety using
+# the default priors. Save the model as bm1. How does it compare to mod1?
+# Visualize the model.
+
+
 
 
 
@@ -273,20 +301,20 @@ mod4 <- stan_glm(vcf ~ cmpy_value_log + shares_log + buyout,
                  data = ipo, 
                  family = binomial)
 
+# model summary
+summary(mod4)
+
+# visualize posterior distributions
+plot(mod4, plotfun = "dens")
+
 # prior summary
 prior_summary(mod4)
 
 # check convergence
 plot(mod4, plotfun = "trace")
 
-# visualize posterior distributions
-plot(mod4, plotfun = "dens")
-
 # assess model fit with posterior predictive check
 pp_check(mod4)
-
-# model summary
-summary(mod4)
 
 # visualize model 
 plot(ggpredict(mod4, ppd = FALSE)) # default
@@ -310,14 +338,13 @@ mod5 <- stan_glm(vcf ~ cmpy_value_log + shares_log + buyout,
                                 autoscale = F))
 
 # evaluate model
-prior_summary(mod5)
-plot(mod5, plotfun = "trace")
-plot(mod5, plotfun = "dens")
-pp_check(mod5)
 summary(mod5)
+plot(mod5, plotfun = "dens")
 posterior_interval(mod5)
 posterior_interval(mod4) # compare to first model
-
+prior_summary(mod5)
+plot(mod5, plotfun = "trace")
+pp_check(mod5)
 
 
 # fit model without buyout and with default priors
@@ -326,12 +353,13 @@ mod6 <- stan_glm(vcf ~ cmpy_value_log + shares_log,
                  family = binomial)
 
 # evaluate model
+summary(mod6)
+plot(mod6, plotfun = "dens")
+posterior_interval(mod6)
+posterior_interval(mod4) # compare to first model
 prior_summary(mod6)
 plot(mod6, plotfun = "trace")
-plot(mod6, plotfun = "dens")
 pp_check(mod6)
-summary(mod6)
-posterior_interval(mod6)
 
 # compare to model with buyout
 waic(mod4)
@@ -348,21 +376,38 @@ mod7 <- stan_glm(vcf ~ cmpy_value_log * shares_log,
                  data = ipo, 
                  family = binomial)
 
-pp_check(mod7)
 summary(mod7)
 posterior_interval(mod7)
+pp_check(mod7)
 compare_models(waic(mod6), waic(mod7))
 
 # looks like the model with interaction is warranted.
 
 # Visualize the model
 plot(ggpredict(mod7, terms= c("shares_log [all]","cmpy_value_log [6,7,8]"))) 
+plot(ggpredict(mod7, terms= c("shares_log [all]","cmpy_value_log [6,7,8]"))) 
 
 # make the plot prettier; convert x axis back to original scale
 # need to load ggplot2 package
 plot(ggpredict(mod7, terms= c("shares_log [all]","cmpy_value_log [6,7,8]"))) +
   scale_x_continuous("Shares", breaks = seq(5.5,7.0,0.5), 
-                     labels = scales::dollar(10^seq(5.5,7.0,0.5)))
+                     labels = scales::comma(10^seq(5.5,7.0,0.5))) +
+  scale_color_discrete(labels = scales::dollar(10^(6:8)))
+
+
+
+# YOUR TURN #2 ------------------------------------------------------------
+
+# Using mod7, the predicted probability that a company offering 10,000,000
+# shares and a face value of $10,000,00 will get venture capital funding is:
+
+pp_vcf <- posterior_predict(mod7, newdata = data.frame(shares_log = 7, 
+                                                   cmpy_value_log = 7), 
+                        draws = 1000)
+mean(pp_vcf)
+
+# What's the estimated probability that a company offering 1,000,000
+# shares and a face value of $100,000,00 will get venture capital funding?
 
 
 
