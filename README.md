@@ -1,6 +1,6 @@
 # Bayesian Modeling in R
 
-Getting started with the rstanarm package. A guest lecture for Natasha Foutz, Associate Professor of Commerce, Oct 1, 2019.
+Getting started with the rstanarm package. A guest lecture for Natasha Foutz, Associate Professor of Commerce, Oct 3, 2019.
 
 ## To follow along, please do the following:
 * Download and install R and RStudio (see below for instructions)
